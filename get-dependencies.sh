@@ -13,14 +13,27 @@ echo "---------------------------------------------------------------"
 get-debloated-pkgs --add-common --prefer-nano
 
 # Comment this out if you need an AUR package
-make-aur-package iloader-bin
+# make-aur-package iloader-bin
 
-# If the application needs to be manually built that has to be done down here
+echo "Getting binary..."
+echo "---------------------------------------------------------------"
+case "$ARCH" in
+	x86_64)  farch=amd64;;
+	aarch64) farch=arm64;;
+esac
+link=https://github.com/nab138/iloader/releases/latest/download/iloader-linux-$farch.deb
+if ! wget --retry-connrefused --tries=30 "$link" -O /tmp/temp.deb 2>/tmp/download.log; then
+	cat /tmp/download.log
+	exit 1
+fi
+ar x /tmp/temp.deb
+tar -xvf ./data.tar.gz
+rm -f ./*.tar.gz /tmp/temp.deb
 
-# if you also have to make nightly releases check for DEVEL_RELEASE = 1
-#
-# if [ "${DEVEL_RELEASE-}" = 1 ]; then
-# 	nightly build steps
-# else
-# 	regular build steps
-# fi
+mkdir -p ./AppDir/bin
+cp -v ./usr/bin/* ./AppDir/bin
+cp -v ./usr/share/applications/*.desktop ./AppDir
+cp -v ./usr/share/icons/hicolor/128x128/apps/iloader.png ./
+
+awk -F'/' '/Location:/{print $(NF-1); exit}' /tmp/download.log > ~/version
+

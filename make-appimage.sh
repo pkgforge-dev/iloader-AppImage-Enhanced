@@ -3,16 +3,13 @@
 set -eu
 
 ARCH=$(uname -m)
-VERSION=$(pacman -Q iloader-bin | awk '{print $2; exit}') # example command to get version of application here
-export ARCH VERSION
+export ARCH
 export OUTPATH=./dist
 export ADD_HOOKS="self-updater.hook"
 export UPINFO="gh-releases-zsync|${GITHUB_REPOSITORY%/*}|${GITHUB_REPOSITORY#*/}|latest|*$ARCH.AppImage.zsync"
-export ICON=/usr/share/icons/hicolor/128x128/apps/iloader.png
-export DESKTOP=/usr/share/applications/iloader.desktop
 
 # Deploy dependencies
-quick-sharun /usr/bin/iloader
+quick-sharun ./AppDir/bin/iloader
 
 # Additional changes can be done in between here
 
